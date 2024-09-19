@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Assignments</title>
+    <style>
+       * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 26px;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.input-section input {
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #555;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.input-section input:focus {
+    border-color: #3498db;
+    background-color: #eef6fc;
+    outline: none;
+}
+
+button {
+    padding: 14px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+li {
+    background-color: #f7f7f7; 
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+li:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    background-color: #eef6fc;
+}
+
+li strong {
+    color: #2c3e50;
+}
+
+li .remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+li .remove-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        
+        <div class="input-section">
+            <input type="text" id="taskInput" placeholder="Enter a task">
+            <input type="text" id="personInput" placeholder="Assign to (name)">
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        // Access the DOM elements
+        const taskInput = document.getElementById('taskInput');
+        const personInput = document.getElementById('personInput');
+        const taskList = document.getElementById('taskList');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+
+        // Load tasks from local storage when the page loads
+        window.onload = loadTasks;
+
+        // Add task event listener
+        addTaskBtn.addEventListener('click', addTask);
+
+        // Function to add a new task
+        function addTask() {
+            const taskValue = taskInput.value.trim();
+            const personValue = personInput.value.trim();
+
+            if (taskValue && personValue) {
+                const task = { task: taskValue, person: personValue };
+                let tasks = getTasksFromLocalStorage();
+
+                tasks.push(task);
+                saveTasksToLocalStorage(tasks);
+
+                appendTaskToDOM(task);
+                taskInput.value = '';
+                personInput.value = '';
+            }
+        }
+
+        // Function to append a task to the DOM
+        function appendTaskToDOM(task) {
+            const li = document.createElement('li');
+            li.innerHTML = `${task.task} - <strong>${task.person}</strong> 
+            <button class="remove-btn" onclick="removeTask(this)">Remove</button>`;
+            taskList.appendChild(li);
+        }
+
+        // Function to remove a task
+        function removeTask(button) {
+            const li = button.parentElement;
+            const taskText = li.firstChild.textContent.split(' - ')[0];
+            let tasks = getTasksFromLocalStorage();
+            
+            tasks = tasks.filter(task => task.task !== taskText);
+            saveTasksToLocalStorage(tasks);
+            
+            li.remove();
+        }
+
+        // Get tasks from local storage
+        function getTasksFromLocalStorage() {
+            const tasks = localStorage.getItem('tasks');
+            return tasks ? JSON.parse(tasks) : [];
+        }
+
+        // Save tasks to local storage
+        function saveTasksToLocalStorage(tasks) {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Load tasks from local storage
+        function loadTasks() {
+            const tasks = getTasksFromLocalStorage();
+            tasks.forEach(task => appendTaskToDOM(task));
+        }
+    </script>
+</body>
+</html>
